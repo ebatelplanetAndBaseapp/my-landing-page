@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmileNet — בוט AI לקליניקות שיניים | הגדל תורים ב-40%</title>
+<meta name="description" content="מערכת צ'אט-בוט חכמה למרפאות שיניים. עונה 24/7, קובעת תורים, לא מפספסת אף פנייה.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900&family=DM+Mono:wght@400;500&family=Assistant:wght@300;400;500;600;700;800&family=Rubik:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F8F5F0;
+    --charcoal: #1A1A1A;
+    --sage: #2E7D52;
+    --sage-light: #4CAF76;
+    --sage-pale: #E8F5E9;
+    --sage-dark: #1B5E3A;
+    --gold: #C8933A;
+    --gold-light: #E8B55A;
+    --white: #FFFFFF;
+    --muted: #6B6860;
+    --gray-light: #F5F5F5;
+    --gray-border: #E0E0E0;
+    --blue: #0056B3;
+    --error: #D32F2F;
+    --success: #388E3C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--cream);
+    color: var(--charcoal);
+    font-family: 'Heebo', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    direction: rtl;
+  }
+
+  body.font-assistant { font-family: 'Assistant', sans-serif; }
+  body.font-rubik { font-family: 'Rubik', sans-serif; }
+  body.font-manrope { font-family: 'Manrope', sans-serif; }
+  body.font-fraunces { font-family: 'Fraunces', serif; }
+
+  /* ─── FONT TESTER (TEMP) ─── */
+  .font-tester {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    background: white;
+    border: 2px solid var(--sage);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+  .font-tester-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sage);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .font-tester button {
+    display: block;
+    width: 100%;
+    padding: 8px 14px;
+    margin-bottom: 6px;
+    border: 1px solid var(--gray-border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .font-tester button:hover {
+    background: var(--sage-pale);
+    border-color: var(--sage);
+  }
+  .font-tester button:last-child { margin-bottom: 0; }
+  .font-tester button.active {
+    background: var(--sage);
+    color: white;
+    border-color: var(--sage);
+  }
+
+  /* ─── LANGUAGE SWITCHER ─── */
+  .lang-switcher {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .lang-btn {
+    padding: 8px 14px;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+    font-family: 'Heebo', sans-serif;
+  }
+  .lang-btn:hover {
+    background: var(--sage-pale);
+    border-color: var(--sage);
+    color: var(--sage);
+  }
+  .lang-btn.active {
+    background: var(--sage);
+    color: white;
+    border-color: var(--sage);
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; right: 0; left: 0;
+    z-index: 1000;
+    padding: 16px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(20px);
+    background: rgba(248,245,240,0.95);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .nav-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 26px; font-weight: 900;
+    color: var(--charcoal); letter-spacing: -0.5px;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--sage); }
+  .nav-right {
+    display: flex; align-items: center; gap: 24px;
+  }
+  .nav-links {
+    display: flex; gap: 32px; list-style: none;
+    font-size: 15px; font-weight: 500; color: var(--muted);
+  }
+  .nav-links a { text-decoration: none; color: inherit; transition: color .2s; }
+  .nav-links a:hover { color: var(--sage); }
+  .nav-cta {
+    background: var(--sage);
+    color: white;
+    border: none; border-radius: 100px;
+    padding: 12px 24px;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+    font-family: inherit;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-cta:hover { background: var(--sage-dark); transform: translateY(-1px); }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    padding: 140px 60px 80px;
+    gap: 60px;
+    position: relative;
+    background: linear-gradient(135deg, var(--cream) 0%, #F0EBE0 100%);
+  }
+  
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--sage-pale);
+    color: var(--sage-dark);
+    border: 1px solid rgba(46,125,82,0.2);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 13px; font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .badge-dot {
+    width: 8px; height: 8px;
+    background: var(--sage); border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .hero-title {
+    font-family: 'Heebo', sans-serif;
+    font-size: clamp(42px, 5vw, 64px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    color: var(--charcoal);
+    margin-bottom: 20px;
+  }
+  .hero-title em {
+    font-style: normal;
+    color: var(--sage);
+    position: relative;
+  }
+
+  .hero-subtitle {
+    font-size: 19px;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 36px;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .hero-actions {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .btn-primary {
+    background: var(--sage);
+    color: white;
+    border: none; border-radius: 100px;
+    padding: 16px 36px;
+    font-size: 17px; font-weight: 800;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+    font-family: inherit;
+    box-shadow: 0 8px 24px rgba(46,125,82,0.25);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-primary:hover {
+    background: var(--sage-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(46,125,82,0.35);
+  }
+  .btn-whatsapp {
+    background: #25D366;
+    color: white;
+    border: none; border-radius: 100px;
+    padding: 16px 32px;
+    font-size: 17px; font-weight: 800;
+    cursor: pointer; text-decoration: none;
+    transition: all .2s;
+    font-family: inherit;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .btn-whatsapp:hover {
+    background: #1DA851;
+    transform: translateY(-2px);
+  }
+  .btn-secondary {
+    color: var(--charcoal);
+    font-size: 15px; font-weight: 700;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: color .2s;
+    padding: 14px 20px;
+  }
+  .btn-secondary:hover { color: var(--sage); }
+
+  .hero-trust {
+    display: flex; align-items: center; gap: 24px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(0,0,0,0.08);
+  }
+  .trust-avatars {
+    display: flex;
+  }
+  .trust-avatars img {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 3px solid white;
+    margin-left: -12px;
+    background: var(--gray-light);
+  }
+  .trust-avatars img:first-child { margin-right: 0; }
+  .trust-text {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .trust-text strong { color: var(--charcoal); }
+
+  /* ─── CHAT DEMO ─── */
+  .chat-demo-container {
+    position: relative;
+    background: var(--white);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
+  }
+  .chat-demo-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border-radius: 16px;
+    margin-bottom: 16px;
+  }
+  .chat-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .chat-info { flex: 1; }
+  .chat-name {
+    color: white; font-weight: 800; font-size: 15px;
+  }
+  .chat-status {
+    color: rgba(255,255,255,0.85); font-size: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    background: white; border-radius: 50%;
+  }
+  .chat-body {
+    background: #EFE7DD;
+    border-radius: 16px;
+    padding: 16px;
+    min-height: 380px;
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .chat-message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    animation: messageIn .3s ease;
+  }
+  @keyframes messageIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chat-message.bot {
+    background: white;
+    align-self: flex-end;
+    border-radius: 12px 2px 12px 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .chat-message.user {
+    background: #DCF8C6;
+    align-self: flex-start;
+    border-radius: 2px 12px 12px 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .chat-time {
+    font-size: 10px;
+    color: #999;
+    text-align: left;
+    margin-top: 4px;
+  }
+  .chat-input-container {
+    display: flex; gap: 10px;
+    padding: 14px 16px;
+    background: white;
+    border-radius: 16px;
+    margin-top: 16px;
+  }
+  .chat-input {
+    flex: 1;
+    border: 1px solid var(--gray-border);
+    border-radius: 24px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .chat-input:focus { border-color: var(--sage); }
+  .chat-send {
+    width: 44px; height: 44px;
+    background: var(--sage);
+    border: none;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .chat-send:hover { background: var(--sage-dark); transform: scale(1.05); }
+  .chat-send svg { width: 18px; height: 18px; stroke: white; }
+  
+  .typing-indicator {
+    display: flex; gap: 4px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 12px 2px 12px 12px;
+    align-self: flex-end;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .typing-dot {
+    width: 8px; height: 8px;
+    background: #ccc;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  .quick-replies {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 16px;
+    margin-top: 12px;
+  }
+  .quick-reply-btn {
+    background: var(--sage-pale);
+    color: var(--sage-dark);
+    border: 1px solid rgba(46,125,82,0.3);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .quick-reply-btn:hover {
+    background: var(--sage);
+    color: white;
+  }
+
+  /* ─── RESULTS SECTION ─── */
+  .results-section {
+    padding: 100px 60px;
+    background: var(--white);
+  }
+  .section-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 60px;
+  }
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 2px;
+    color: var(--sage); text-transform: uppercase;
+    margin-bottom: 14px; display: block;
+  }
+  .section-title {
+    font-family: 'Heebo', sans-serif;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 900; line-height: 1.1;
+    letter-spacing: -0.5px; color: var(--charcoal);
+  }
+  .section-title em { font-style: normal; color: var(--sage); }
+  .section-subtitle {
+    font-size: 17px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .result-card {
+    text-align: center;
+    padding: 32px 24px;
+    background: var(--cream);
+    border-radius: 20px;
+    transition: transform .2s;
+  }
+  .result-card:hover { transform: translateY(-4px); }
+  .result-number {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--sage);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .result-number span {
+    font-size: 24px;
+    vertical-align: super;
+  }
+  .result-label {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .how-section {
+    padding: 100px 60px;
+    background: var(--cream);
+  }
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1100px;
+    margin: 50px auto 0;
+  }
+  .how-step {
+    position: relative;
+    padding: 40px 32px;
+    background: var(--white);
+    border-radius: 24px;
+    text-align: right;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+  .step-number {
+    position: absolute;
+    top: -18px; right: 32px;
+    width: 44px; height: 44px;
+    background: var(--sage);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800;
+    font-family: 'Fraunces', serif;
+  }
+  .step-icon {
+    font-size: 42px;
+    margin-bottom: 20px;
+  }
+  .step-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--charcoal);
+  }
+  .step-desc {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ─── CASE STUDIES ─── */
+  .cases-section {
+    padding: 100px 60px;
+    background: var(--white);
+  }
+  .cases-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 1100px;
+    margin: 50px auto 0;
+  }
+  .case-card {
+    background: linear-gradient(135deg, var(--sage-pale) 0%, #F0F7F2 100%);
+    border: 1px solid rgba(46,125,82,0.15);
+    border-radius: 24px;
+    padding: 40px;
+  }
+  .case-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 24px;
+  }
+  .case-avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage), var(--sage-light));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .case-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--charcoal);
+  }
+  .case-clinic {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .case-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .case-stat {
+    text-align: center;
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+  }
+  .case-stat-value {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--sage);
+    line-height: 1;
+  }
+  .case-stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .case-quote {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-style: italic;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    border-right: 3px solid var(--sage);
+  }
+
+  /* ─── TESTIMONIALS ─── */
+  .testimonials-section {
+    padding: 100px 60px;
+    background: var(--charcoal);
+    color: white;
+  }
+  .testimonials-section .section-tag { color: var(--gold-light); }
+  .testimonials-section .section-title { color: white; }
+  .testimonials-section .section-subtitle { color: rgba(255,255,255,0.6); }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1200px;
+    margin: 50px auto 0;
+  }
+  .testimonial-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 32px;
+  }
+  .testimonial-stars {
+    color: var(--gold-light);
+    font-size: 18px;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+  .testimonial-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 24px;
+  }
+  .testimonial-author {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .testimonial-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage), var(--sage-light));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .testimonial-info {
+    flex: 1;
+  }
+  .testimonial-name {
+    font-size: 16px;
+    font-weight: 800;
+  }
+  .testimonial-role {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ─── PRICING ─── */
+  .pricing-section {
+    padding: 100px 60px;
+    background: var(--cream);
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 900px;
+    margin: 50px auto 0;
+  }
+  .pricing-card {
+    background: var(--white);
+    border: 2px solid rgba(0,0,0,0.06);
+    border-radius: 28px;
+    padding: 44px 40px;
+    transition: all .2s;
+  }
+  .pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  }
+  .pricing-card.featured {
+    background: var(--charcoal);
+    border-color: var(--charcoal);
+    color: white;
+    position: relative;
+  }
+  .popular-badge {
+    position: absolute;
+    top: 20px; left: -30px;
+    background: var(--gold);
+    color: var(--charcoal);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 36px;
+    transform: rotate(-45deg);
+    font-family: inherit;
+  }
+  .pricing-tier {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--sage);
+    margin-bottom: 16px; display: block;
+  }
+  .pricing-card.featured .pricing-tier { color: var(--gold-light); }
+  .pricing-price {
+    font-family: 'Fraunces', serif;
+    font-size: 64px; font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+    direction: ltr;
+    display: block;
+  }
+  .pricing-currency {
+    font-size: 28px;
+    vertical-align: top;
+    padding-top: 12px;
+  }
+  .pricing-period {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+  .pricing-card.featured .pricing-period { color: rgba(255,255,255,0.5); }
+  .pricing-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .pricing-features li {
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 15px;
+  }
+  .check-icon {
+    width: 22px; height: 22px;
+    min-width: 22px;
+    background: var(--sage-pale);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    color: var(--sage);
+    font-weight: 800;
+  }
+  .pricing-card.featured .check-icon {
+    background: rgba(46,125,82,0.3);
+    color: var(--sage-light);
+  }
+  .btn-pricing {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .2s;
+  }
+  .btn-pricing.outline {
+    background: transparent;
+    border: 2px solid rgba(0,0,0,0.12);
+    color: var(--charcoal);
+  }
+  .btn-pricing.outline:hover {
+    border-color: var(--sage);
+    color: var(--sage);
+  }
+  .btn-pricing.solid {
+    background: var(--sage);
+    color: white;
+  }
+  .btn-pricing.solid:hover {
+    background: var(--sage-dark);
+  }
+
+  .pricing-guarantee {
+    max-width: 700px;
+    margin: 40px auto 0;
+    padding: 24px 32px;
+    background: #FFF8EC;
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    text-align: right;
+  }
+  .guarantee-icon {
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+  .guarantee-text {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .guarantee-text strong {
+    color: var(--charcoal);
+    font-weight: 800;
+  }
+
+  /* ─── CONTACT FORM ─── */
+  .contact-section {
+    padding: 100px 60px;
+    background: var(--white);
+  }
+  .contact-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .contact-info h3 {
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+  .contact-info p {
+    font-size: 16px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.7;
+  }
+  .contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--cream);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--charcoal);
+    transition: all .2s;
+  }
+  .contact-method:hover {
+    background: var(--sage-pale);
+    transform: translateX(-4px);
+  }
+  .contact-method-icon {
+    width: 44px; height: 44px;
+    background: var(--sage);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .contact-method-text {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .contact-method-sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .contact-form {
+    background: var(--cream);
+    padding: 40px;
+    border-radius: 24px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--charcoal);
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid var(--gray-border);
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+    background: white;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--sage);
+  }
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  .form-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--sage);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .2s;
+  }
+  .form-submit:hover {
+    background: var(--sage-dark);
+    transform: translateY(-2px);
+  }
+  .form-note {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--charcoal);
+    color: rgba(255,255,255,0.5);
+    padding: 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+  }
+  footer .nav-logo { color: white; text-decoration: none; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; padding: 120px 40px 60px; text-align: center; }
+    .hero-subtitle { margin-left: auto; margin-right: auto; }
+    .hero-actions { justify-content: center; }
+    .hero-trust { justify-content: center; }
+    .chat-demo-container { max-width: 420px; margin: 0 auto; }
+    .results-grid { grid-template-columns: repeat(2, 1fr); }
+    .how-grid { grid-template-columns: 1fr; }
+    .cases-grid { grid-template-columns: 1fr; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .contact-container { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 14px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 40px; }
+    .results-grid { grid-template-columns: 1fr; }
+    .results-section, .how-section, .cases-section, .testimonials-section, .pricing-section, .contact-section {
+      padding: 60px 24px;
+    }
+    .contact-form { padding: 28px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; padding: 32px 24px; }
+    .pricing-guarantee { flex-direction: column; text-align: center; }
+    .font-tester { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Smile<span>Net</span></a>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#results" data-i18n="nav_results">תוצאות</a></li>
+      <li><a href="#how" data-i18n="nav_how">איך זה עובד</a></li>
+      <li><a href="#cases" data-i18n="nav_cases">מקרים</a></li>
+      <li><a href="#pricing" data-i18n="nav_pricing">מחירים</a></li>
+    </ul>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLanguage('he')">עברית</button>
+      <button class="lang-btn" onclick="setLanguage('ru')">Русский</button>
+      <button class="lang-btn" onclick="setLanguage('en')">English</button>
+    </div>
+    <a href="https://wa.me/972500000000" class="nav-cta" data-i18n="nav_contact">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      צור קשר
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span data-i18n="hero_badge">למרפאות שיניים בלבד · מוכן להפעלה תוך 24 שעות</span>
+    </div>
+
+    <h1 class="hero-title">
+      <span data-i18n="hero_title1">אל תפספסו אף פנייה</span><br>
+      <em data-i18n="hero_title2">הבוט שלנו עונה 24/7</em>
+    </h1>
+
+    <p class="hero-subtitle" data-i18n="hero_subtitle">
+      מערכת צ'אט-בוט חכמה שמתחברת לוואטסאפ, טלגרם ואינסטגרם. קובעת תורים, עונה על שאלות, ושולחת תזכורות — הכל אוטומטי.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <span data-i18n="hero_cta1">קבע הדגמה חינם</span>
+      </a>
+      <a href="https://wa.me/972500000000" class="btn-whatsapp">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        <span data-i18n="hero_cta2">שלח הודעה בוואטסאפ</span>
+      </a>
+    </div>
+
+    <div class="hero-trust">
+      <div class="trust-avatars">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23E8F5E9'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='30'%3E🦷%3C/text%3E%3C/svg%3E" alt="clinic">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23F0F7F2'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='30'%3E🏥%3C/text%3E%3C/svg%3E" alt="clinic">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23E0F2E6'/%3E%3Ctext x='50' y='55' text-anchor='middle' font-size='30'%3E👨‍⚕️%3C/text%3E%3C/svg%3E" alt="clinic">
+      </div>
+      <div class="trust-text">
+        <strong>87+ <span data-i18n="trust_clinics">מרפאות</span></strong> <span data-i18n="trust_trust">סומכות עלינו</span><br>
+        <span data-i18n="trust_israel">בישראל</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE CHAT DEMO -->
+  <div class="chat-demo-container">
+    <div class="chat-demo-header">
+      <div class="chat-avatar">🦷</div>
+      <div class="chat-info">
+        <div class="chat-name">SmileNet Clinic</div>
+        <div class="chat-status">
+          <span class="status-dot"></span>
+          <span data-i18n="chat_available">זמין עכשיו</span>
+        </div>
+      </div>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-message bot">
+        <span data-i18n="chat_welcome">שלום! 👋 אני הבוט של SmileNet. איך אני יכול לעזור?</span>
+        <div class="chat-time">עכשיו</div>
+      </div>
+    </div>
+    <div class="quick-replies" id="quickReplies">
+      <button class="quick-reply-btn" onclick="sendQuickReply('אני רוצה לקבוע תור')" data-i18n="chat_btn1">📅 קביעת תור</button>
+      <button class="quick-reply-btn" onclick="sendQuickReply('כמה עולה טיפול?')" data-i18n="chat_btn2">💰 מחירים</button>
+      <button class="quick-reply-btn" onclick="sendQuickReply('איפה אתם נמצאים?')" data-i18n="chat_btn3">📍 מיקום</button>
+      <button class="quick-reply-btn" onclick="sendQuickReply('שעות פתיחה')" data-i18n="chat_btn4">🕐 שעות פעילות</button>
+    </div>
+    <div class="chat-input-container">
+      <input type="text" class="chat-input" id="chatInput" placeholder="כתוב הודעה..." onkeypress="handleKeyPress(event)">
+      <button class="chat-send" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4z"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-section" id="results">
+  <div class="section-header">
+    <span class="section-tag" data-i18n="results_tag">תוצאות אמיתיות</span>
+    <h2 class="section-title"><span data-i18n="results_title1">כמה</span> <em data-i18n="results_title2">תורים נוספים</em> <span data-i18n="results_title3">תקבלו?</span></h2>
+    <p class="section-subtitle" data-i18n="results_subtitle">הנתונים מבוססים על ממוצע של 87 מרפאות שמשתמשות ב-SmileNet</p>
+  </div>
+
+  <div class="results-grid">
+    <div class="result-card">
+      <div class="result-number">40<span>%</span></div>
+      <div class="result-label" data-i18n="result1_label">עלייה במספר התורים החודשיים</div>
+    </div>
+    <div class="result-card">
+      <div class="result-number">24/7</div>
+      <div class="result-label" data-i18n="result2_label">מענה מיידי לכל פנייה — גם בלילה</div>
+    </div>
+    <div class="result-card">
+      <div class="result-number">₪8K</div>
+      <div class="result-label" data-i18n="result3_label">חיסכון ממוצע בחודש על כוח אדם</div>
+    </div>
+    <div class="result-card">
+      <div class="result-number">93<span>%</span></div>
+      <div class="result-label" data-i18n="result4_label">שביעות רצון מטופלים</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-header">
+    <span class="section-tag" data-i18n="how_tag">פשוט וקל</span>
+    <h2 class="section-title"><span data-i18n="how_title1">איך זה</span> <em data-i18n="how_title2">עובד?</em></h2>
+    <p class="section-subtitle" data-i18n="how_subtitle">3 צעדים פשוטים להפעלת המערכת</p>
+  </div>
+
+  <div class="how-grid">
+    <div class="how-step">
+      <div class="step-number">1</div>
+      <div class="step-icon">📞</div>
+      <div class="step-title" data-i18n="how_step1_title">שיחת ייעוץ חינם</div>
+      <div class="step-desc" data-i18n="how_step1_desc">נכיר את המרפאה שלך, נבין את הצרכים ונתאים את הבוט לתהליכים הקיימים.</div>
+    </div>
+
+    <div class="how-step">
+      <div class="step-number">2</div>
+      <div class="step-icon">⚙️</div>
+      <div class="step-title" data-i18n="how_step2_title">הקמה והתאמה אישית</div>
+      <div class="step-desc" data-i18n="how_step2_desc">נקים את המערכת, נעלה את המחירון וה-FAQ, נחבר לוואטסאפ וליומן התורים.</div>
+    </div>
+
+    <div class="how-step">
+      <div class="step-number">3</div>
+      <div class="step-icon">🚀</div>
+      <div class="step-title" data-i18n="how_step3_title">הפעלה תוך 24 שעות</div>
+      <div class="step-desc" data-i18n="how_step3_desc">הבוט מתחיל לעבוד, עונה למטופלים וקובע תורים. אנחנו מנטרים ומשפרים כל הזמן.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="cases-section" id="cases">
+  <div class="section-header">
+    <span class="section-tag" data-i18n="cases_tag">מקרים אמיתיים</span>
+    <h2 class="section-title"><span data-i18n="cases_title1">מה קרה ל</span><em data-i18n="cases_title2">מרפאות אחרות?</em></h2>
+    <p class="section-subtitle" data-i18n="cases_subtitle">שתי דוגמאות מתוך עשרות מרפאות מרוצות</p>
+  </div>
+
+  <div class="cases-grid">
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-avatar">👩‍⚕️</div>
+        <div>
+          <div class="case-name">ד"ר מיכל כהן</div>
+          <div class="case-clinic">Smile TLV, תל אביב</div>
+        </div>
+      </div>
+      <div class="case-stats">
+        <div class="case-stat">
+          <div class="case-stat-value">+52%</div>
+          <div class="case-stat-label" data-i18n="case_stat1">תורים חדשים</div>
+        </div>
+        <div class="case-stat">
+          <div class="case-stat-value">₪12K</div>
+          <div class="case-stat-label" data-i18n="case_stat2">חיסכון בחודש</div>
+        </div>
+        <div class="case-stat">
+          <div class="case-stat-value">3 <span data-i18n="case_stat_days">ימים</span></div>
+          <div class="case-stat-label" data-i18n="case_stat3">זמן החזרה</div>
+        </div>
+      </div>
+      <div class="case-quote" data-i18n="case_quote1">
+        "השקענו בפרסום אבל הפסדנו פניות כי לא ענינו בזמן. היום הבוט עונה תוך שניות — והיומן מלא."
+      </div>
+    </div>
+
+    <div class="case-card">
+      <div class="case-header">
+        <div class="case-avatar">👨‍⚕️</div>
+        <div>
+          <div class="case-name">אורן לוי</div>
+          <div class="case-clinic">מרכז שיניים, חיפה</div>
+        </div>
+      </div>
+      <div class="case-stats">
+        <div class="case-stat">
+          <div class="case-stat-value">+34%</div>
+          <div class="case-stat-label" data-i18n="case_stat1">תורים חדשים</div>
+        </div>
+        <div class="case-stat">
+          <div class="case-stat-value">₪8K</div>
+          <div class="case-stat-label" data-i18n="case_stat2">חיסכון בחודש</div>
+        </div>
+        <div class="case-stat">
+          <div class="case-stat-value">5 <span data-i18n="case_stat_days">ימים</span></div>
+          <div class="case-stat-label" data-i18n="case_stat3">זמן החזרה</div>
+        </div>
+      </div>
+      <div class="case-quote" data-i18n="case_quote2">
+        "הקבלנית שלנו לא יכלה לענות אחרי 17:00. היום אנחנו מקבלים תורים גם ב-22:00 בערב — בלי שום מאמץ."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-header">
+    <span class="section-tag" data-i18n="testimonials_tag">המלצות</span>
+    <h2 class="section-title"><span data-i18n="testimonials_title1">מה אומרים</span> <em data-i18n="testimonials_title2">הלקוחות שלנו?</em></h2>
+    <p class="section-subtitle" data-i18n="testimonials_subtitle">מנהלי מרפאות שמשתמשים ב-SmileNet כל יום</p>
+  </div>
+
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text" data-i18n="testimonial1">
+        "המערכת שווה כל שקל. תוך שבועיים ראינו עלייה של 40% בתורים. המטופלים אוהבים את המענה המיידי."
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👩‍⚕️</div>
+        <div class="testimonial-info">
+          <div class="testimonial-name">ד"ר רותם דוידוביץ'</div>
+          <div class="testimonial-role">מנהלת מרפאה, ראשל"צ</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text" data-i18n="testimonial2">
+        "התקנה הייתה מהירה והתמיכה מעולה. הבוט יודע לענות על 80% מהשאלות בלי להתערב."
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👨‍⚕️</div>
+        <div class="testimonial-info">
+          <div class="testimonial-name">ד"ר יוסי מזרחי</div>
+          <div class="testimonial-role">מנהל מרפאה, ירושלים</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-card">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text" data-i18n="testimonial3">
+        "סוף סוף אנחנו ישנים בשקט. הבוט מטפל בכל הפניות בלילה ובסופי שבוע. זה שינה לנו את העסק."
+      </p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">👩‍💼</div>
+        <div class="testimonial-info">
+          <div class="testimonial-name">נטלי גולן</div>
+          <div class="testimonial-role">מנהלת מרפאה, הרצליה</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="section-header">
+    <span class="section-tag" data-i18n="pricing_tag">מחירים</span>
+    <h2 class="section-title"><span data-i18n="pricing_title1">מחיר</span> <em data-i18n="pricing_title2">שקוף והוגן</em></h2>
+    <p class="section-subtitle" data-i18n="pricing_subtitle">ללא עמלות נסתרות. ללא התחייבות ארוכה.</p>
+  </div>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <span class="pricing-tier" data-i18n="pricing_tier1">חבילת בסיס</span>
+      <span class="pricing-price"><span class="pricing-currency">₪</span>1,100</span>
+      <div class="pricing-period" data-i18n="pricing_period1">לחודש — אחסון + תמיכה</div>
+      <ul class="pricing-features">
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat1_1">WhatsApp Business מלא</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat1_2">קביעת תורים אוטומטית</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat1_3">תזכורות למטופלים</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat1_4">מאגר ידע של המרפאה</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat1_5">עברית, אנגלית, רוסית</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat1_6">דוחות חודשיים</span></li>
+      </ul>
+      <button class="btn-pricing outline" onclick="window.location.href='#contact'" data-i18n="pricing_btn1">התחל עכשיו ←</button>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="popular-badge" data-i18n="pricing_popular">פופולרי</div>
+      <span class="pricing-tier" data-i18n="pricing_tier2">חבילת פרימיום</span>
+      <span class="pricing-price" style="color:white;"><span class="pricing-currency" style="color:white;">₪</span>1,800</span>
+      <div class="pricing-period" data-i18n="pricing_period2">לחודש — הכל כלול</div>
+      <ul class="pricing-features">
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat2_1">כל מה שבחבילת הבסיס</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat2_2">Telegram + Instagram DM</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat2_3">AI מתקדם (Groq / Claude)</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat2_4">אינטגרציה ל-CRM</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat2_5">תמיכה בעדיפות גבוהה</span></li>
+        <li><span class="check-icon">✓</span><span data-i18n="pricing_feat2_6">התקנה תוך 24 שעות</span></li>
+      </ul>
+      <button class="btn-pricing solid" onclick="window.location.href='#contact'" data-i18n="pricing_btn2">קבל עכשיו ←</button>
+    </div>
+  </div>
+
+  <div class="pricing-guarantee">
+    <div class="guarantee-icon">🛡️</div>
+    <div class="guarantee-text">
+      <strong data-i18n="guarantee_title">התחייבות להחזר כספי — 30 יום!</strong><br>
+      <span data-i18n="guarantee_text">אם לא תראה עלייה במספר התורים תוך 30 יום, נחזיר את כל הכסף. בלי שאלות.</span>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT FORM -->
+<section class="contact-section" id="contact">
+  <div class="contact-container">
+    <div class="contact-info">
+      <h3 data-i18n="contact_title">מוכן להתחיל?</h3>
+      <p data-i18n="contact_subtitle">
+        השאר פרטים ונחזור אליך תוך שעה עם הצעה מותאמת אישית למרפאה שלך.
+      </p>
+
+      <div class="contact-methods">
+        <a href="https://wa.me/972500000000" class="contact-method">
+          <div class="contact-method-icon">💬</div>
+          <div>
+            <div class="contact-method-text" data-i18n="contact_method1">שלח הודעה בוואטסאפ</div>
+            <div class="contact-method-sub" data-i18n="contact_method1_sub">נענה תוך דקות</div>
+          </div>
+        </a>
+
+        <a href="tel:0500000000" class="contact-method">
+          <div class="contact-method-icon">📞</div>
+          <div>
+            <div class="contact-method-text" data-i18n="contact_method2">התקשר עכשיו</div>
+            <div class="contact-method-sub">050-000-0000</div>
+          </div>
+        </a>
+
+        <a href="mailto:hello@smilenet.ai" class="contact-method">
+          <div class="contact-method-icon">✉️</div>
+          <div>
+            <div class="contact-method-text" data-i18n="contact_method3">שלח אימייל</div>
+            <div class="contact-method-sub">hello@smilenet.ai</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <form class="contact-form" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <label class="form-label" data-i18n="form_name">שם מלא *</label>
+        <input type="text" class="form-input" required placeholder="ישראל ישראלי">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="form_phone">טלפון *</label>
+        <input type="tel" class="form-input" required placeholder="050-000-0000" dir="ltr">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="form_clinic">שם המרפאה</label>
+        <input type="text" class="form-input" placeholder="Smile Clinic">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" data-i18n="form_message">הודעה (אופציונלי)</label>
+        <textarea class="form-textarea" placeholder="ספר לנו קצת על המרפאה שלך..."></textarea>
+      </div>
+
+      <button type="submit" class="form-submit">
+        <span data-i18n="form_submit">שלח פרטים ←</span>
+      </button>
+
+      <div class="form-note" data-i18n="form_note">
+        אנו מכבדים את פרטיותך. הפרטים ישמשו רק ליצירת קשר.
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="nav-logo">Smile<span style="color:var(--sage-light)">Net</span></a>
+  <div>© 2026 SmileNet · כל הזכויות שמורות</div>
+  <div>hello@smilenet.ai</div>
+</footer>
+
+<!-- FONT TESTER (TEMPORARY) -->
+<div class="font-tester">
+  <div class="font-tester-title">🔧 בדיקת פונטים (זמני)</div>
+  <button onclick="setFont('heebo')" id="font-heebo" class="active">Heebo (ברירת מחדל)</button>
+  <button onclick="setFont('assistant')" id="font-assistant">Assistant</button>
+  <button onclick="setFont('rubik')" id="font-rubik">Rubik</button>
+  <button onclick="setFont('manrope')" id="font-manrope">Manrope</button>
+  <button onclick="setFont('fraunces')" id="font-fraunces">Fraunces</button>
+</div>
+
+<script>
+// ─── TRANSLATIONS ───
+const translations = {
+  he: {
+    nav_results: 'תוצאות',
+    nav_how: 'איך זה עובד',
+    nav_cases: 'מקרים',
+    nav_pricing: 'מחירים',
+    nav_contact: 'צור קשר',
+    hero_badge: 'למרפאות שיניים בלבד · מוכן להפעלה תוך 24 שעות',
+    hero_title1: 'אל תפספסו אף פנייה',
+    hero_title2: 'הבוט שלנו עונה 24/7',
+    hero_subtitle: 'מערכת צ\'אט-בוט חכמה שמתחברת לוואטסאפ, טלגרם ואינסטגרם. קובעת תורים, עונה על שאלות, ושולחת תזכורות — הכל אוטומטי.',
+    hero_cta1: 'קבע הדגמה חינם',
+    hero_cta2: 'שלח הודעה בוואטסאפ',
+    trust_clinics: 'מרפאות',
+    trust_trust: 'סומכות עלינו',
+    trust_israel: 'בישראל',
+    chat_available: 'זמין עכשיו',
+    chat_welcome: 'שלום! 👋 אני הבוט של SmileNet. איך אני יכול לעזור?',
+    chat_btn1: '📅 קביעת תור',
+    chat_btn2: '💰 מחירים',
+    chat_btn3: '📍 מיקום',
+    chat_btn4: '🕐 שעות פעילות',
+    results_tag: 'תוצאות אמיתיות',
+    results_title1: 'כמה',
+    results_title2: 'תורים נוספים',
+    results_title3: 'תקבלו?',
+    results_subtitle: 'הנתונים מבוססים על ממוצע של 87 מרפאות שמשתמשות ב-SmileNet',
+    result1_label: 'עלייה במספר התורים החודשיים',
+    result2_label: 'מענה מיידי לכל פנייה — גם בלילה',
+    result3_label: 'חיסכון ממוצע בחודש על כוח אדם',
+    result4_label: 'שביעות רצון מטופלים',
+    how_tag: 'פשוט וקל',
+    how_title1: 'איך זה',
+    how_title2: 'עובד?',
+    how_subtitle: '3 צעדים פשוטים להפעלת המערכת',
+    how_step1_title: 'שיחת ייעוץ חינם',
+    how_step1_desc: 'נכיר את המרפאה שלך, נבין את הצרכים ונתאים את הבוט לתהליכים הקיימים.',
+    how_step2_title: 'הקמה והתאמה אישית',
+    how_step2_desc: 'נקים את המערכת, נעלה את המחירון וה-FAQ, נחבר לוואטסאפ וליומן התורים.',
+    how_step3_title: 'הפעלה תוך 24 שעות',
+    how_step3_desc: 'הבוט מתחיל לעבוד, עונה למטופלים וקובע תורים. אנחנו מנטרים ומשפרים כל הזמן.',
+    cases_tag: 'מקרים אמיתיים',
+    cases_title1: 'מה קרה ל',
+    cases_title2: 'מרפאות אחרות?',
+    cases_subtitle: 'שתי דוגמאות מתוך עשרות מרפאות מרוצות',
+    case_stat1: 'תורים חדשים',
+    case_stat2: 'חיסכון בחודש',
+    case_stat3: 'זמן החזרה',
+    case_stat_days: 'ימים',
+    case_quote1: '"השקענו בפרסום אבל הפסדנו פניות כי לא ענינו בזמן. היום הבוט עונה תוך שניות — והיומן מלא."',
+    case_quote2: '"הקבלנית שלנו לא יכלה לענות אחרי 17:00. היום אנחנו מקבלים תורים גם ב-22:00 בערב — בלי שום מאמץ."',
+    testimonials_tag: 'המלצות',
+    testimonials_title1: 'מה אומרים',
+    testimonials_title2: 'הלקוחות שלנו?',
+    testimonials_subtitle: 'מנהלי מרפאות שמשתמשים ב-SmileNet כל יום',
+    testimonial1: '"המערכת שווה כל שקל. תוך שבועיים ראינו עלייה של 40% בתורים. המטופלים אוהבים את המענה המיידי."',
+    testimonial2: '"התקנה הייתה מהירה והתמיכה מעולה. הבוט יודע לענות על 80% מהשאלות בלי להתערב."',
+    testimonial3: '"סוף סוף אנחנו ישנים בשקט. הבוט מטפל בכל הפניות בלילה ובסופי שבוע. זה שינה לנו את העסק."',
+    pricing_tag: 'מחירים',
+    pricing_title1: 'מחיר',
+    pricing_title2: 'שקוף והוגן',
+    pricing_subtitle: 'ללא עמלות נסתרות. ללא התחייבות ארוכה.',
+    pricing_tier1: 'חבילת בסיס',
+    pricing_period1: 'לחודש — אחסון + תמיכה',
+    pricing_feat1_1: 'WhatsApp Business מלא',
+    pricing_feat1_2: 'קביעת תורים אוטומטית',
+    pricing_feat1_3: 'תזכורות למטופלים',
+    pricing_feat1_4: 'מאגר ידע של המרפאה',
+    pricing_feat1_5: 'עברית, אנגלית, רוסית',
+    pricing_feat1_6: 'דוחות חודשיים',
+    pricing_btn1: 'התחל עכשיו ←',
+    pricing_popular: 'פופולרי',
+    pricing_tier2: 'חבילת פרימיום',
+    pricing_period2: 'לחודש — הכל כלול',
+    pricing_feat2_1: 'כל מה שבחבילת הבסיס',
+    pricing_feat2_2: 'Telegram + Instagram DM',
+    pricing_feat2_3: 'AI מתקדם (Groq / Claude)',
+    pricing_feat2_4: 'אינטגרציה ל-CRM',
+    pricing_feat2_5: 'תמיכה בעדיפות גבוהה',
+    pricing_feat2_6: 'התקנה תוך 24 שעות',
+    pricing_btn2: 'קבל עכשיו ←',
+    guarantee_title: 'התחייבות להחזר כספי — 30 יום!',
+    guarantee_text: 'אם לא תראה עלייה במספר התורים תוך 30 יום, נחזיר את כל הכסף. בלי שאלות.',
+    contact_title: 'מוכן להתחיל?',
+    contact_subtitle: 'השאר פרטים ונחזור אליך תוך שעה עם הצעה מותאמת אישית למרפאה שלך.',
+    contact_method1: 'שלח הודעה בוואטסאפ',
+    contact_method1_sub: 'נענה תוך דקות',
+    contact_method2: 'התקשר עכשיו',
+    contact_method3: 'שלח אימייל',
+    form_name: 'שם מלא *',
+    form_phone: 'טלפון *',
+    form_clinic: 'שם המרפאה',
+    form_message: 'הודעה (אופציונלי)',
+    form_submit: 'שלח פרטים ←',
+    form_note: 'אנו מכבדים את פרטיותך. הפרטים ישמשו רק ליצירת קשר.',
+    chat_responses: {
+      'אני רוצה לקבוע תור': { text: 'בשמחה! 😊 איזה יום מתאים לך? (בוקר/צהריים/ערב)' },
+      'כמה עולה טיפול?': { text: 'תלוי בטיפול! 😊\n• ניקוי שיניים: ₪450\n• סתימה: ₪600-900\n• עקירה: ₪800-1500\n• השתלה: ₪4200+\n\nרוצה לקבוע תור לייעוץ?' },
+      'איפה אתם נמצאים?': { text: 'אנחנו נמצאים ברחוב רוטשילד 123, תל אביב 📍\nיש חניה חינם בקרבת מקום!\nרוצה שאשלח קישור ל-Waze?' },
+      'שעות פתיחה': { text: 'שעות הפתיחה שלנו:\nא׳-ה׳: 8:00-20:00\nו׳: 8:00-13:00\n\nרוצה לקבוע תור?' }
+    }
+  },
+  ru: {
+    nav_results: 'Результаты',
+    nav_how: 'Как это работает',
+    nav_cases: 'Кейсы',
+    nav_pricing: 'Цены',
+    nav_contact: 'Связаться',
+    hero_badge: 'Только для стоматологических клиник · Готово к запуску за 24 часа',
+    hero_title1: 'Не пропустите ни одного обращения',
+    hero_title2: 'Наш бот отвечает 24/7',
+    hero_subtitle: 'Умная система чат-бота, которая подключается к WhatsApp, Telegram и Instagram. Записывает на приём, отвечает на вопросы и отправляет напоминания — всё автоматически.',
+    hero_cta1: 'Записаться на демо',
+    hero_cta2: 'Написать в WhatsApp',
+    trust_clinics: 'клиник',
+    trust_trust: 'доверяют нам',
+    trust_israel: 'в Израиле',
+    chat_available: 'Онлайн сейчас',
+    chat_welcome: 'Здравствуйте! 👋 Я бот SmileNet. Чем могу помочь?',
+    chat_btn1: '📅 Записаться',
+    chat_btn2: '💰 Цены',
+    chat_btn3: '📍 Адрес',
+    chat_btn4: '🕐 Часы работы',
+    results_tag: 'Реальные результаты',
+    results_title1: 'Сколько',
+    results_title2: 'дополнительных записей',
+    results_title3: 'вы получите?',
+    results_subtitle: 'Данные основаны на среднем показателе 87 клиник, использующих SmileNet',
+    result1_label: 'Рост количества записей в месяц',
+    result2_label: 'Мгновенный ответ на каждое обращение — даже ночью',
+    result3_label: 'Экономия в месяц на персонале',
+    result4_label: 'Удовлетворённость пациентов',
+    how_tag: 'Просто и легко',
+    how_title1: 'Как это',
+    how_title2: 'работает?',
+    how_subtitle: '3 простых шага для запуска системы',
+    how_step1_title: 'Бесплатная консультация',
+    how_step1_desc: 'Познакомимся с вашей клиникой, поймём потребности и адаптируем бота под существующие процессы.',
+    how_step2_title: 'Настройка и персонализация',
+    how_step2_desc: 'Настроим систему, загрузим прайс-лист и FAQ, подключим WhatsApp и календарь записей.',
+    how_step3_title: 'Запуск за 24 часа',
+    how_step3_desc: 'Бот начинает работать, отвечает пациентам и записывает на приём. Мы отслеживаем и улучшаем постоянно.',
+    cases_tag: 'Реальные кейсы',
+    cases_title1: 'Что произошло в',
+    cases_title2: 'других клиниках?',
+    cases_subtitle: 'Два примера из десятков довольных клиник',
+    case_stat1: 'Новых записей',
+    case_stat2: 'Экономия в месяц',
+    case_stat3: 'Время окупаемости',
+    case_stat_days: 'дней',
+    case_quote1: '"Мы вкладывались в рекламу, но теряли обращения, потому что не отвечали вовремя. Сегодня бот отвечает за секунды — и календарь заполнен."',
+    case_quote2: '"Наш администратор не мог отвечать после 17:00. Сегодня мы получаем записи даже в 22:00 вечера — без каких-либо усилий."',
+    testimonials_tag: 'Отзывы',
+    testimonials_title1: 'Что говорят',
+    testimonials_title2: 'наши клиенты?',
+    testimonials_subtitle: 'Владельцы клиник, которые используют SmileNet каждый день',
+    testimonial1: '"Система стоит каждого шекеля. Через две недели мы увидели рост записей на 40%. Пациенты любят мгновенный ответ."',
+    testimonial2: '"Установка была быстрой, а поддержка отличная. Бот умеет отвечать на 80% вопросов без вмешательства."',
+    testimonial3: '"Наконец-то мы спим спокойно. Бот обрабатывает все обращения ночью и в выходные. Это изменило наш бизнес."',
+    pricing_tag: 'Цены',
+    pricing_title1: 'Прозрачная',
+    pricing_title2: 'и честная цена',
+    pricing_subtitle: 'Без скрытых комиссий. Без долгосрочных обязательств.',
+    pricing_tier1: 'Базовый пакет',
+    pricing_period1: 'в месяц — хостинг + поддержка',
+    pricing_feat1_1: 'Полный WhatsApp Business',
+    pricing_feat1_2: 'Автоматическая запись на приём',
+    pricing_feat1_3: 'Напоминания пациентам',
+    pricing_feat1_4: 'База знаний клиники',
+    pricing_feat1_5: 'Иврит, английский, русский',
+    pricing_feat1_6: 'Ежемесячные отчёты',
+    pricing_btn1: 'Начать сейчас ←',
+    pricing_popular: 'Популярно',
+    pricing_tier2: 'Премиум пакет',
+    pricing_period2: 'в месяц — всё включено',
+    pricing_feat2_1: 'Всё из базового пакета',
+    pricing_feat2_2: 'Telegram + Instagram DM',
+    pricing_feat2_3: 'Продвинутый AI (Groq / Claude)',
+    pricing_feat2_4: 'Интеграция с CRM',
+    pricing_feat2_5: 'Приоритетная поддержка',
+    pricing_feat2_6: 'Установка за 24 часа',
+    pricing_btn2: 'Получить сейчас ←',
+    guarantee_title: 'Гарантия возврата денег — 30 дней!',
+    guarantee_text: 'Если вы не увидите рост количества записей в течение 30 дней, мы вернём все деньги. Без вопросов.',
+    contact_title: 'Готовы начать?',
+    contact_subtitle: 'Оставьте контакты, и мы вернёмся к вам в течение часа с персональным предложением для вашей клиники.',
+    contact_method1: 'Написать в WhatsApp',
+    contact_method1_sub: 'Отвечаем за минуты',
+    contact_method2: 'Позвонить сейчас',
+    contact_method3: 'Отправить email',
+    form_name: 'Полное имя *',
+    form_phone: 'Телефон *',
+    form_clinic: 'Название клиники',
+    form_message: 'Сообщение (необязательно)',
+    form_submit: 'Отправить ←',
+    form_note: 'Мы уважаем вашу конфиденфиденность. Данные будут использованы только для связи.',
+    chat_responses: {
+      'хочу записаться': { text: 'С удовольствием! 😊 Какое время вам подходит? (утро/день/вечер)' },
+      'сколько стоит': { text: 'Зависит от лечения! 😊\n• Чистка зубов: ₪450\n• Пломба: ₪600-900\n• Удаление: ₪800-1500\n• Имплант: ₪4200+\n\nХотите записаться на консультацию?' },
+      'где находитесь': { text: 'Мы находимся на улице Ротшильда 123, Тель-Авив 📍\nЕсть бесплатная парковка рядом!\nОтправить ссылку на Waze?' },
+      'часы работы': { text: 'Наши часы работы:\nВс-Чт: 8:00-20:00\nПт: 8:00-13:00\n\nХотите записаться?' }
+    }
+  },
+  en: {
+    nav_results: 'Results',
+    nav_how: 'How It Works',
+    nav_cases: 'Case Studies',
+    nav_pricing: 'Pricing',
+    nav_contact: 'Contact',
+    hero_badge: 'For dental clinics only · Ready to launch in 24 hours',
+    hero_title1: 'Never miss a lead',
+    hero_title2: 'Our bot replies 24/7',
+    hero_subtitle: 'Smart chatbot system that connects to WhatsApp, Telegram & Instagram. Books appointments, answers questions, sends reminders — all automatic.',
+    hero_cta1: 'Book Free Demo',
+    hero_cta2: 'Message on WhatsApp',
+    trust_clinics: 'clinics',
+    trust_trust: 'trust us',
+    trust_israel: 'in Israel',
+    chat_available: 'Online now',
+    chat_welcome: 'Hello! 👋 I\'m the SmileNet bot. How can I help?',
+    chat_btn1: '📅 Book Appointment',
+    chat_btn2: '💰 Pricing',
+    chat_btn3: '📍 Location',
+    chat_btn4: '🕐 Opening Hours',
+    results_tag: 'Real Results',
+    results_title1: 'How many',
+    results_title2: 'extra appointments',
+    results_title3: 'will you get?',
+    results_subtitle: 'Data based on average of 87 clinics using SmileNet',
+    result1_label: 'Increase in monthly appointments',
+    result2_label: 'Instant reply to every inquiry — even at night',
+    result3_label: 'Average monthly staff savings',
+    result4_label: 'Patient satisfaction',
+    how_tag: 'Simple & Easy',
+    how_title1: 'How does it',
+    how_title2: 'work?',
+    how_subtitle: '3 simple steps to launch the system',
+    how_step1_title: 'Free Consultation Call',
+    how_step1_desc: 'We\'ll learn about your clinic, understand your needs and tailor the bot to your existing processes.',
+    how_step2_title: 'Setup & Customization',
+    how_step2_desc: 'We\'ll set up the system, upload your price list and FAQ, connect WhatsApp and your appointment calendar.',
+    how_step3_title: 'Launch in 24 Hours',
+    how_step3_desc: 'The bot starts working, replies to patients and books appointments. We monitor and improve continuously.',
+    cases_tag: 'Real Case Studies',
+    cases_title1: 'What happened to',
+    cases_title2: 'other clinics?',
+    cases_subtitle: 'Two examples from dozens of satisfied clinics',
+    case_stat1: 'New Appointments',
+    case_stat2: 'Monthly Savings',
+    case_stat3: 'Payback Time',
+    case_stat_days: 'days',
+    case_quote1: '"We invested in ads but lost leads because we didn\'t reply in time. Today the bot replies in seconds — and the calendar is full."',
+    case_quote2: '"Our receptionist couldn\'t reply after 5 PM. Today we get appointments even at 10 PM — with zero effort."',
+    testimonials_tag: 'Testimonials',
+    testimonials_title1: 'What do',
+    testimonials_title2: 'our clients say?',
+    testimonials_subtitle: 'Clinic managers who use SmileNet every day',
+    testimonial1: '"The system is worth every shekel. Within two weeks we saw a 40% increase in appointments. Patients love the instant reply."',
+    testimonial2: '"Installation was quick and support is excellent. The bot knows how to answer 80% of questions without intervention."',
+    testimonial3: '"Finally we sleep peacefully. The bot handles all inquiries at night and on weekends. It changed our business."',
+    pricing_tag: 'Pricing',
+    pricing_title1: 'Transparent',
+    pricing_title2: '& Fair Pricing',
+    pricing_subtitle: 'No hidden fees. No long-term commitment.',
+    pricing_tier1: 'Basic Plan',
+    pricing_period1: 'per month — hosting + support',
+    pricing_feat1_1: 'Full WhatsApp Business',
+    pricing_feat1_2: 'Automatic appointment booking',
+    pricing_feat1_3: 'Patient reminders',
+    pricing_feat1_4: 'Clinic knowledge base',
+    pricing_feat1_5: 'Hebrew, English, Russian',
+    pricing_feat1_6: 'Monthly reports',
+    pricing_btn1: 'Start Now ←',
+    pricing_popular: 'Popular',
+    pricing_tier2: 'Premium Plan',
+    pricing_period2: 'per month — all inclusive',
+    pricing_feat2_1: 'Everything in Basic',
+    pricing_feat2_2: 'Telegram + Instagram DM',
+    pricing_feat2_3: 'Advanced AI (Groq / Claude)',
+    pricing_feat2_4: 'CRM Integration',
+    pricing_feat2_5: 'Priority support',
+    pricing_feat2_6: '24-hour installation',
+    pricing_btn2: 'Get Now ←',
+    guarantee_title: '30-Day Money-Back Guarantee!',
+    guarantee_text: 'If you don\'t see an increase in appointments within 30 days, we\'ll refund all your money. No questions asked.',
+    contact_title: 'Ready to start?',
+    contact_subtitle: 'Leave your details and we\'ll get back to you within an hour with a custom offer for your clinic.',
+    contact_method1: 'Message on WhatsApp',
+    contact_method1_sub: 'Reply in minutes',
+    contact_method2: 'Call now',
+    contact_method3: 'Send email',
+    form_name: 'Full Name *',
+    form_phone: 'Phone *',
+    form_clinic: 'Clinic Name',
+    form_message: 'Message (optional)',
+    form_submit: 'Send Details ←',
+    form_note: 'We respect your privacy. Your details will only be used for contact.',
+    chat_responses: {
+      'book': { text: 'Great! 😊 What time works for you? (morning/afternoon/evening)' },
+      'price': { text: 'Depends on treatment! 😊\n• Cleaning: ₪450\n• Filling: ₪600-900\n• Extraction: ₪800-1500\n• Implant: ₪4200+\n\nWant to book a consultation?' },
+      'where': { text: 'We\'re at 123 Rothschild St, Tel Aviv 📍\nFree parking nearby!\nWant me to send a Waze link?' },
+      'hours': { text: 'Our hours:\nSun-Thu: 8:00-20:00\nFri: 8:00-13:00\n\nWant to book?' }
+    }
+  }
+};
+
+let currentLang = 'he';
+
+function setLanguage(lang) {
+  currentLang = lang;
+  
+  // Update active button
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  // Update direction
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  
+  // Update all translated elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) {
+      el.textContent = translations[lang][key];
+    }
+  });
+  
+  // Update chat welcome message
+  const chatBody = document.getElementById('chatBody');
+  chatBody.innerHTML = `
+    <div class="chat-message bot">
+      ${translations[lang].chat_welcome}
+      <div class="chat-time">${getTime()}</div>
+    </div>
+  `;
+  
+  // Update quick replies
+  const quickReplies = document.getElementById('quickReplies');
+  quickReplies.innerHTML = '';
+  const btns = lang === 'he' ? [
+    { text: '📅 קביעת תור', reply: 'אני רוצה לקבוע תור' },
+    { text: '💰 מחירים', reply: 'כמה עולה טיפול?' },
+    { text: '📍 מיקום', reply: 'איפה אתם נמצאים?' },
+    { text: '🕐 שעות פעילות', reply: 'שעות פתיחה' }
+  ] : lang === 'ru' ? [
+    { text: '📅 Записаться', reply: 'хочу записаться' },
+    { text: '💰 Цены', reply: 'сколько стоит' },
+    { text: '📍 Адрес', reply: 'где находитесь' },
+    { text: '🕐 Часы работы', reply: 'часы работы' }
+  ] : [
+    { text: '📅 Book', reply: 'book' },
+    { text: '💰 Price', reply: 'price' },
+    { text: '📍 Location', reply: 'where' },
+    { text: '🕐 Hours', reply: 'hours' }
+  ];
+  
+  btns.forEach(btn => {
+    const button = document.createElement('button');
+    button.className = 'quick-reply-btn';
+    button.textContent = btn.text;
+    button.onclick = () => sendQuickReply(btn.reply);
+    quickReplies.appendChild(button);
+  });
+}
+
+// ─── FONT TESTER ───
+function setFont(font) {
+  document.body.className = 'font-' + font;
+  document.querySelectorAll('.font-tester button').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('font-' + font).classList.add('active');
+}
+
+// ─── CHAT DEMO LOGIC ───
+function getTime() {
+  const now = new Date();
+  return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+}
+
+function addMessage(text, isUser = false) {
+  const chatBody = document.getElementById('chatBody');
+  const msg = document.createElement('div');
+  msg.className = 'chat-message ' + (isUser ? 'user' : 'bot');
+  msg.innerHTML = text.replace(/\n/g, '<br>') + '<div class="chat-time">' + getTime() + '</div>';
+  chatBody.appendChild(msg);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function showTyping() {
+  const chatBody = document.getElementById('chatBody');
+  const typing = document.createElement('div');
+  typing.className = 'typing-indicator';
+  typing.id = 'typingIndicator';
+  typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  chatBody.appendChild(typing);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function hideTyping() {
+  const typing = document.getElementById('typingIndicator');
+  if (typing) typing.remove();
+}
+
+function sendQuickReply(text) {
+  handleUserMessage(text);
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (text) {
+    handleUserMessage(text);
+    input.value = '';
+  }
+}
+
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    sendMessage();
+  }
+}
+
+function handleUserMessage(text) {
+  addMessage(text, true);
+  
+  showTyping();
+  
+  setTimeout(() => {
+    hideTyping();
+    
+    const responses = translations[currentLang].chat_responses;
+    const textLower = text.toLowerCase();
+    
+    let response = null;
+    for (const key in responses) {
+      if (textLower.includes(key) || text.includes(key)) {
+        response = responses[key];
+        break;
+      }
+    }
+    
+    if (!response) {
+      const defaults = currentLang === 'he' ? [
+        'שאלה מצוינת! 🤔 כדי לתת לך תשובה מדויקת, כדאי שתדבר עם הנציגים שלנו. רוצה שאעביר אותך?',
+        'אני אשמח לעזור! למידע מפורט יותר, תשאיר פרטים בטופס למטה או תתקשר אלינו: 050-000-0000 😊'
+      ] : currentLang === 'ru' ? [
+        'Отличный вопрос! 🤔 Для точного ответа лучше поговорить с нашими специалистами. Переключить?',
+        'Рад помочь! Для подробной информации оставьте контакты в форме ниже или позвоните: 050-000-0000 😊'
+      ] : [
+        'Great question! 🤔 For an accurate answer, it\'s best to talk to our team. Want me to connect you?',
+        'Happy to help! For detailed info, leave your details in the form below or call us: 050-000-0000 😊'
+      ];
+      const randomResponse = defaults[Math.floor(Math.random() * defaults.length)];
+      addMessage(randomResponse);
+    } else {
+      addMessage(response.text);
+    }
+  }, 800 + Math.random() * 700);
+}
+
+// ─── FORM HANDLING ───
+function handleSubmit(event) {
+  event.preventDefault();
+  const form = event.target;
+  
+  alert(currentLang === 'he' ? 'תודה על הפנייה! נחזור אליך תוך שעה 🎉' : 
+        currentLang === 'ru' ? 'Спасибо за заявку! Вернёмся в течение часа 🎉' : 
+        'Thanks for your inquiry! We\'ll get back within an hour 🎉');
+  form.reset();
+}
+
+// ─── SCROLL ANIMATIONS ───
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.result-card, .how-step, .case-card, .testimonial-card, .pricing-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = 'opacity .6s ease, transform .6s ease';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
